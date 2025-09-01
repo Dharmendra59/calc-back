@@ -1,15 +1,13 @@
+import os
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
-from constants import SERVER_URL, PORT, ENV
 from apps.calculator.route import router as calculator_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-      yield
-      
-      
+    yield
 
 app = FastAPI(lifespan=lifespan)
 
@@ -25,8 +23,8 @@ app.add_middleware(
 async def health():
     return {"message": "Server is Running"}
 
-
 app.include_router(calculator_router, prefix="/calculate", tags=["Calculate"])
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host=SERVER_URL, port=int(PORT), reload=(ENV == "dev"))
+    port = int(os.environ.get("PORT", 8000))  # Render ke liye
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=os.environ.get("ENV") == "dev")
